@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<litepal>
+    <dbname value="weather_hxd"/>
+    <version value="1"/>
+    <list>
+        <mapping class="com.example.hxd.weatherforhxd.db.Province"/>
+        <mapping class="com.example.hxd.weatherforhxd.db.City"/>
+        <mapping class="com.example.hxd.weatherforhxd.db.County"/>
+    </list>
+</litepal>
