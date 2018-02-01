@@ -5,6 +5,8 @@ import android.text.TextUtils;
 import com.example.hxd.weatherforhxd.db.City;
 import com.example.hxd.weatherforhxd.db.County;
 import com.example.hxd.weatherforhxd.db.Province;
+import com.example.hxd.weatherforhxd.gson.Weather;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -93,5 +95,20 @@ public class JsonUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * 解析weather返回的数据
+     */
+    public static Weather handleWeatherResponse(String response) {
+        try {
+            JSONObject object = new JSONObject(response);
+            JSONArray array = object.getJSONArray("HeWeather6");
+            String weatherContent = array.getJSONObject(0).toString();
+           return new Gson().fromJson(weatherContent, Weather.class);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
