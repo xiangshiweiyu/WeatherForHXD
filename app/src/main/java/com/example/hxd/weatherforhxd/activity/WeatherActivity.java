@@ -1,5 +1,6 @@
 package com.example.hxd.weatherforhxd.activity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
@@ -25,6 +26,7 @@ import com.example.hxd.weatherforhxd.gson.AQI;
 import com.example.hxd.weatherforhxd.gson.Forecast;
 import com.example.hxd.weatherforhxd.gson.Lifestyle;
 import com.example.hxd.weatherforhxd.gson.Weather;
+import com.example.hxd.weatherforhxd.service.UpdateWeatherAndPic;
 import com.example.hxd.weatherforhxd.util.HttpUtil;
 import com.example.hxd.weatherforhxd.util.JsonUtil;
 import com.example.hxd.weatherforhxd.util.StaticUtil;
@@ -65,6 +67,8 @@ public class WeatherActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
         setContentView(R.layout.activity_weather);
+        Intent intent = new Intent(WeatherActivity.this, UpdateWeatherAndPic.class);
+        startService(intent);
 
         initView();
 
@@ -164,15 +168,15 @@ public class WeatherActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                final String responseText = response.body().string();
-                final Weather weather = JsonUtil.handleWeatherResponse(responseText);
+                final String weatherResponse = response.body().string();
+                final Weather weather = JsonUtil.handleWeatherResponse(weatherResponse);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if (weather != null && "ok".equals(weather.status)) {
                             SharedPreferences.Editor editor = PreferenceManager.
                                     getDefaultSharedPreferences(WeatherActivity.this).edit();
-                            editor.putString("weather", responseText);
+                            editor.putString("weather", weatherResponse);
                             editor.apply();
                             mWeatherId = weather.basic.weatherId;
                             showWeatherInfo(weather);
