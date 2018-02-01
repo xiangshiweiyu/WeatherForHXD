@@ -1,17 +1,21 @@
 package com.example.hxd.weatherforhxd.activity;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.hxd.weatherforhxd.R;
 import com.example.hxd.weatherforhxd.gson.AQI;
 import com.example.hxd.weatherforhxd.gson.Forecast;
@@ -41,10 +45,17 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView tvComfor;
     private TextView tvWashText;
     private TextView tvSportText;
+    private ImageView ivWeatherBackground;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //将通知了和主界面设置为同一个背景
+        if (Build.VERSION.SDK_INT >= 21) {
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
         setContentView(R.layout.activity_weather);
 
         initView();
@@ -52,6 +63,12 @@ public class WeatherActivity extends AppCompatActivity {
         SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(this);
         String weatherString = spf.getString("weather", null);
 
+        String weatherPic = spf.getString("bing_pic", null);
+        if (weatherPic != null) {
+            Glide.with(this).load(weatherPic).into(ivWeatherBackground);
+        } else {
+            loadWeatherPic();
+        }
         if (weatherString != null) {
             //有缓存时直接加载缓存数据
             Weather weather = JsonUtil.handleWeatherResponse(weatherString);
@@ -78,6 +95,36 @@ public class WeatherActivity extends AppCompatActivity {
         tvTitleTime = findViewById(R.id.tv_title_update_time);
         tvWashText = findViewById(R.id.tv_car_wash);
         llForrcast = findViewById(R.id.ll_forecast);
+        ivWeatherBackground = findViewById(R.id.iv_weather_background);
+
+    }
+
+    /**
+     * 加载天气背景图片
+     */
+    private void loadWeatherPic() {
+        HttpUtil.sendOkHttpRequest(StaticUtil.WEATHER_BACKGROUND_PIC, new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String picResponse = response.body().string();
+                SharedPreferences.Editor editor = PreferenceManager.
+                        getDefaultSharedPreferences(WeatherActivity.this).edit();
+                editor.putString("bing_pic", picResponse);
+                editor.apply();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Glide.with(WeatherActivity.this).load(picResponse).
+                                into(ivWeatherBackground);
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+        });
     }
 
     /**
@@ -101,6 +148,7 @@ public class WeatherActivity extends AppCompatActivity {
                                     getDefaultSharedPreferences(WeatherActivity.this).edit();
                             editor.putString("weather", responseText);
                             editor.apply();
+                            showWeatherInfo(weather);
                         } else {
                             Toast.makeText(WeatherActivity.this, "获取天气信息失败", Toast.
                                     LENGTH_LONG).show();
@@ -120,6 +168,7 @@ public class WeatherActivity extends AppCompatActivity {
                 });
             }
         });
+        loadWeatherPic();
     }
 
     /**

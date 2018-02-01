@@ -5,9 +5,15 @@ package com.example.hxd.weatherforhxd.util;
  */
 
 public class StaticUtil {
-
-    public static String WEATHER_URL="https://free-api.heweather.com/s6/weather?location=";
-    public static String WEATHER_KEY="&key=0e157f761b864df989f93133b82a8150";
+    /**
+     * 天气信息请求头
+     */
+    public static String WEATHER_URL = "https://free-api.heweather.com/s6/weather?location=";
+    /**
+     * 天气key
+     */
+    public static String WEATHER_KEY = "&key=0e157f761b864df989f93133b82a8150";
+    public static String WEATHER_BACKGROUND_PIC = "http://guolin.tech/api/bing_pic";
 
     public static String LIFESTYLE_COMF = "comf";
     public static String LIFESTYLE_DRSG = "drsg";
